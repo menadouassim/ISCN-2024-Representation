@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://unpkg.com/ideogram@1.22.0/dist/js/ideogram.min.js"></script>
+</head>
+<body>
+
+<h2>ISCN Translator</h2>
+
+<input id="iscnInput" value="46,XX,del(5)(q13q33)">
+<button onclick="send()">Convert</button>
+
+<pre id="output"></pre>
+
+<div id="normal"></div>
+<div id="affected"></div>
+
+<script>
+function send() {
+  fetch("/api/iscn_to_text/", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({iscn: document.getElementById("iscnInput").value})
+  })
+  .then(r => r.json())
+  .then(data => {
+    document.getElementById("output").innerText = data.readable_text;
+    console.log(data);
+    new Ideogram({organism: "human", chromosomes: ["5"], container: "#normal"});
+
+    new Ideogram({
+      organism: "human",
+      chromosomes: ["5"],
+      container: "#affected",
+      annotations: [{
+        chr: "5",
+        start: 70000000,
+        stop: 120000000,
+        name: "Deletion",
+        color: "red"
+      }]
+    });
+  });
+}
+</script>
+
+</body>
+</html>
